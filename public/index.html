@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cold DM Generator — AI Outreach Tool</title>
+  <meta name="description" content="Generate personalized cold DMs that don't feel cold. Powered by Google Gemini AI." />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-icon">✦</span>
+      <span class="logo-text">ColdDM</span>
+    </div>
+    <div class="header-right">
+      <nav class="view-tabs hidden" id="view-tabs">
+        <button class="view-tab active" data-view="generate">Generate</button>
+        <button class="view-tab" data-view="history">History</button>
+      </nav>
+      <div class="user-area hidden" id="user-area">
+        <span class="user-email" id="user-email-label"></span>
+        <button class="action-btn small" id="logout-btn" onclick="logout()">Log out</button>
+      </div>
+      <span class="badge-free">Free · Powered by Gemini AI</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- AUTH VIEW -->
+    <div class="auth-view" id="auth-view">
+      <div class="auth-card">
+        <div class="auth-header">
+          <span class="logo-icon">✦</span>
+          <h1 class="auth-title">Welcome to ColdDM</h1>
+          <p class="auth-sub">Sign in to generate cold DMs and save your history.</p>
+        </div>
+
+        <div class="auth-tabs" id="auth-tabs">
+          <button class="auth-tab active" data-mode="login" type="button">Log in</button>
+          <button class="auth-tab" data-mode="signup" type="button">Sign up</button>
+        </div>
+
+        <form class="auth-form" id="auth-form">
+          <div class="field">
+            <label for="auth-email">Email</label>
+            <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="auth-password">Password</label>
+            <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" minlength="8" required />
+            <p class="auth-hint hidden" id="auth-password-hint">At least 8 characters.</p>
+          </div>
+
+          <p class="auth-error hidden" id="auth-error"></p>
+
+          <button type="submit" class="gen-btn" id="auth-submit-btn">
+            <span class="gen-btn-icon">✦</span> <span id="auth-submit-label">Log in</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- APP SHELL (hidden until authenticated) -->
+    <div class="app-shell hidden" id="app-shell">
+    <section class="hero" id="hero-section">
+      <p class="hero-eyebrow">AI-Powered Outreach</p>
+      <h1 class="hero-title">Cold DMs that don't<br /><span class="hero-accent">feel cold.</span></h1>
+      <p class="hero-sub">Fill in the details. Get personalized messages that actually get replies — no cringe openers, no templates, no fluff.</p>
+    </section>
+
+    <div class="card-layout" id="generate-view">
+
+      <!-- LEFT: Input Panel -->
+      <div class="input-panel">
+
+        <div class="panel-section">
+          <p class="section-label">Platform</p>
+          <div class="chip-row" id="platform-row">
+            <button class="chip active" data-val="LinkedIn">LinkedIn</button>
+            <button class="chip" data-val="Twitter / X">Twitter / X</button>
+            <button class="chip" data-val="Instagram">Instagram</button>
+            <button class="chip" data-val="Email">Email</button>
+            <button class="chip" data-val="Discord">Discord</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <p class="section-label">About them</p>
+          <div class="field-grid">
+            <div class="field">
+              <label for="name">Their name</label>
+              <input type="text" id="name" placeholder="Sarah Chen" />
+            </div>
+            <div class="field">
+              <label for="role">Their role</label>
+              <input type="text" id="role" placeholder="Founder at Acme Inc." />
+            </div>
+            <div class="field full">
+              <label for="reason">Why you're reaching out</label>
+              <textarea id="reason" rows="3" placeholder="e.g. Loved their post on AI ethics, want to collaborate on a podcast episode"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <p class="section-label">About you</p>
+          <div class="field-grid">
+            <div class="field full">
+              <label for="about">Brief intro</label>
+              <textarea id="about" rows="3" placeholder="e.g. I run a newsletter on SaaS growth, 12k subscribers, help B2B founders with content"></textarea>
+            </div>
+            <div class="field full">
+              <label for="cta">Your goal / CTA</label>
+              <input type="text" id="cta" placeholder="e.g. 30-min call, collaboration, feedback" />
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <p class="section-label">Tone</p>
+          <div class="chip-row" id="tone-row">
+            <button class="chip active" data-val="Friendly & direct">Friendly &amp; direct</button>
+            <button class="chip" data-val="Professional">Professional</button>
+            <button class="chip" data-val="Casual & witty">Casual &amp; witty</button>
+            <button class="chip" data-val="Bold & confident">Bold &amp; confident</button>
+            <button class="chip" data-val="Humble & genuine">Humble &amp; genuine</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <p class="section-label">Variants to generate</p>
+          <div class="chip-row" id="count-row">
+            <button class="chip active" data-val="1">1 version</button>
+            <button class="chip" data-val="2">2 versions</button>
+            <button class="chip" data-val="3">3 versions</button>
+          </div>
+        </div>
+
+        <button class="gen-btn" id="gen-btn" onclick="generate()">
+          <span class="gen-btn-icon">✦</span> Generate DM
+        </button>
+
+        <p class="shortcut-hint">or press <kbd>Ctrl</kbd> + <kbd>Enter</kbd></p>
+      </div>
+
+      <!-- RIGHT: Output Panel -->
+      <div class="output-panel">
+        <div class="output-empty" id="output-empty">
+          <div class="empty-icon">✉</div>
+          <p class="empty-title">Your DM will appear here</p>
+          <p class="empty-sub">Fill in the fields and hit Generate.</p>
+        </div>
+
+        <div class="output-result hidden" id="output-result">
+          <div class="result-header">
+            <div class="tab-row" id="tab-row"></div>
+            <p class="result-meta" id="result-meta"></p>
+          </div>
+          <div class="dm-output" id="dm-output"></div>
+
+          <div class="followup-block hidden" id="followup-block">
+            <div class="followup-divider"><span>Follow-up</span></div>
+            <div class="dm-output followup-output" id="followup-output"></div>
+          </div>
+
+          <div class="result-footer">
+            <span class="char-count" id="char-count">0 characters</span>
+            <div class="action-row">
+              <button class="action-btn" onclick="generate()">&#8635; Regenerate</button>
+              <button class="action-btn" id="followup-btn" onclick="generateFollowUp()">+ Follow-up</button>
+              <button class="action-btn primary" onclick="copyDM()">Copy DM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- HISTORY VIEW -->
+    <div class="history-view hidden" id="history-view">
+      <div class="history-header">
+        <div>
+          <p class="section-label">Saved generations</p>
+          <p class="history-sub">Every message you generate is saved here automatically.</p>
+        </div>
+        <button class="action-btn" id="clear-history-btn" onclick="clearHistory()">Clear all</button>
+      </div>
+      <div class="history-empty hidden" id="history-empty">
+        <div class="empty-icon">🗂</div>
+        <p class="empty-title">No history yet</p>
+        <p class="empty-sub">Generated DMs will show up here.</p>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Powered by Google Gemini AI &middot; Open source &middot; Generations are saved to your history</p>
+  </footer>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
